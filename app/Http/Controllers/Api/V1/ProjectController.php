@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApiKey;
 use App\Models\Project;
 use App\Models\Workspace;
 use Illuminate\Http\JsonResponse;
@@ -173,4 +174,6 @@ class ProjectController extends Controller
     }
 }
 
-
+// ─────────────────────────────────────────────
+// ApiKeyController
+// ─────────────────────────────────────────────
