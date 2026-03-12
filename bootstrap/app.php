@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->statefulApi();
+        // Token-based auth — no CSRF needed
+        $middleware->validateCsrfTokens(except: ['*']);
 
         $middleware->alias([
             'plan.check' => \App\Http\Middleware\CheckPlanLimit::class,
