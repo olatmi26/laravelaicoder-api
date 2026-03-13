@@ -61,7 +61,7 @@ return [
         'uiux' => [
             'id'         => 'uiux',
             'name'       => 'UI/UX Integrator',
-            'class'      => \App\Agents\UIUXIntegratorAgent::class,
+            'class'      => \App\Agents\UIIntegratorAgent::class,
             'description'=> 'Analyzes HTML themes, extracts design tokens, converts to Blade/React',
             'max_tokens' => 4096,
             'icon'       => '✦',
@@ -88,7 +88,7 @@ return [
         'devops' => [
             'id'         => 'devops',
             'name'       => 'DevOps Engineer',
-            'class'      => \App\Agents\DevOpsAgent::class,
+            'class'      => \App\Agents\DevOpsEngineerAgent::class,
             'description'=> 'Generates Dockerfile, GitHub Actions CI, Forge deploy scripts, .env',
             'max_tokens' => 4096,
             'icon'       => '🚀',

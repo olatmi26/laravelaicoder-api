@@ -177,3 +177,62 @@ class ProjectController extends Controller
 // ─────────────────────────────────────────────
 // ApiKeyController
 // ─────────────────────────────────────────────
+class ApiKeyController extends Controller
+{
+    public function index(Request $request): JsonResponse
+    {
+        $keys = $request->user()->apiKeys()
+            ->select('id', 'provider', 'model', 'is_active', 'last_used_at')
+            ->get()
+            ->map(fn($k) => [...$k->toArray(), 'masked_key' => $k->masked_key]);
+
+        return response()->json(['api_keys' => $keys]);
+    }
+
+    public function store(Request $request): JsonResponse
+    {
+        if (!$request->user()->canUseBYOK()) {
+            return response()->json(['message' => 'BYOK requires the Pro plan.'], 403);
+        }
+
+        $data = $request->validate([
+            'provider' => ['required', 'in:anthropic,openai,gemini,groq'],
+            'key'      => ['required', 'string', 'min:20'],
+            'model'    => ['required', 'string'],
+        ]);
+
+        $apiKey = $request->user()->apiKeys()->updateOrCreate(
+            ['provider' => $data['provider']],
+            [
+                'key_encrypted' => \Illuminate\Support\Facades\Crypt::encryptString($data['key']),
+                'model'         => $data['model'],
+                'is_active'     => true,
+            ]
+        );
+
+        return response()->json([
+            'api_key' => [...$apiKey->toArray(), 'masked_key' => $apiKey->masked_key],
+        ], 201);
+    }
+
+    public function update(Request $request, ApiKey $apiKey): JsonResponse
+    {
+        if ($apiKey->user_id !== $request->user()->id) abort(403);
+
+        $data = $request->validate([
+            'model'     => ['sometimes', 'string'],
+            'is_active' => ['sometimes', 'boolean'],
+        ]);
+
+        $apiKey->update($data);
+
+        return response()->json(['api_key' => $apiKey]);
+    }
+
+    public function destroy(Request $request, ApiKey $apiKey): JsonResponse
+    {
+        if ($apiKey->user_id !== $request->user()->id) abort(403);
+        $apiKey->delete();
+        return response()->json(['message' => 'API key removed.']);
+    }
+}
